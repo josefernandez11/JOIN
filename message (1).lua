@@ -1,7 +1,7 @@
 
 ---------------- CONFIG ----------------
 -- WEBHOOKS
-local WEBHOOK_10M = "https://discord.com/api/webhooks/1490477647321628724/6FjkdqMDyVbjzMzzPFraK17wAqM6cCt57PkM6etbNxuLd-mYvIMjsj1pnDKoYLrX_X8f"
+local WEBHOOK_10M = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz"
 local WEBHOOK_SHOWCASE = "AQUI2"
 
 -- MINIMOS
