@@ -337,7 +337,7 @@ local embed = {
     color = 2829618,
     description = "**— " .. formatMoney(main.value) .. "**\n\n",
     footer = {
-        text = "L Hub"
+        text = "CIX NOTIFIER"
     },
    
 }
