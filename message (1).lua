@@ -103,35 +103,51 @@ local function scan(minProduction)
 end
 
 --------------------------------------------------
--- 🔥 API LOCAL (ARREGLADO)
+-- 🔥 API LOCAL (ARREGLADO CON DETECCIÓN DINÁMICA)
 --------------------------------------------------
+local activeBrainrots = {}
+
 local function sendToLocalAPI(main, list)
     if not LOCAL_API_URL or LOCAL_API_URL == "" then return end
 
     local jobId = game.JobId
     local placeId = game.PlaceId
 
-    -- 🔥 enviar cada brainrot por separado (FIX)
+    local current = {}
+
     for _,v in ipairs(list) do
+        local key = jobId .. "|" .. v.name .. "|" .. math.floor(v.value)
+        current[key] = true
 
-        local payload = {
-            name = v.name,
-            value = math.floor(v.value),
-            jobId = jobId,
-            placeId = placeId
-        }
+        -- ✅ SOLO ENVÍA SI ES NUEVO
+        if not activeBrainrots[key] then
+            activeBrainrots[key] = true
 
-        pcall(function()
-            http_request({
-                Url = LOCAL_API_URL,
-                Method = "POST",
-                Headers = {
-                    ["Content-Type"] = "application/json"
-                },
-                Body = HttpService:JSONEncode(payload)
-            })
-        end)
+            local payload = {
+                name = v.name,
+                value = math.floor(v.value),
+                jobId = jobId,
+                placeId = placeId
+            }
 
+            pcall(function()
+                http_request({
+                    Url = LOCAL_API_URL,
+                    Method = "POST",
+                    Headers = {
+                        ["Content-Type"] = "application/json"
+                    },
+                    Body = HttpService:JSONEncode(payload)
+                })
+            end)
+        end
+    end
+
+    -- 🔥 LIMPIA LOS QUE DESAPARECEN
+    for key,_ in pairs(activeBrainrots) do
+        if key:find(jobId) and not current[key] then
+            activeBrainrots[key] = nil
+        end
     end
 end
 
