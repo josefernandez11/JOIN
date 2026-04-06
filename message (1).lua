@@ -103,7 +103,7 @@ local function scan(minProduction)
 end
 
 --------------------------------------------------
--- 🔥 API LOCAL (NUEVO)
+-- 🔥 API LOCAL (ARREGLADO)
 --------------------------------------------------
 local function sendToLocalAPI(main, list)
     if not LOCAL_API_URL or LOCAL_API_URL == "" then return end
@@ -111,35 +111,28 @@ local function sendToLocalAPI(main, list)
     local jobId = game.JobId
     local placeId = game.PlaceId
 
-    local dataList = {}
-
+    -- 🔥 enviar cada brainrot por separado (FIX)
     for _,v in ipairs(list) do
-        table.insert(dataList, {
+
+        local payload = {
             name = v.name,
-            value = math.floor(v.value)
-        })
+            value = math.floor(v.value),
+            jobId = jobId,
+            placeId = placeId
+        }
+
+        pcall(function()
+            http_request({
+                Url = LOCAL_API_URL,
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json"
+                },
+                Body = HttpService:JSONEncode(payload)
+            })
+        end)
+
     end
-
-    local payload = {
-        main = {
-            name = main.name,
-            value = math.floor(main.value)
-        },
-        jobId = jobId,
-        placeId = placeId,
-        all = dataList
-    }
-
-    pcall(function()
-        http_request({
-            Url = LOCAL_API_URL,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = HttpService:JSONEncode(payload)
-        })
-    end)
 end
 
 --------------------------------------------------
@@ -158,7 +151,7 @@ local function send(list, webhook, pingRole, lastHashRef)
 
     local main = list[1]
 
-    -- 🔥 ENVÍO A TU API (NUEVO)
+    -- 🔥 ENVÍO A TU API
     sendToLocalAPI(main, list)
 
     local hash =
