@@ -436,3 +436,32 @@ task.spawn(function()
         task.wait(1)
     end
 end)
+
+--------------------------------------------------
+-- AUTO REJOIN CADA 15 MINUTOS
+--------------------------------------------------
+
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+
+task.spawn(function()
+    while true do
+        task.wait(900) -- 15 minutos (900 segundos)
+
+        local placeId = game.PlaceId
+        local jobId = game.JobId
+
+        -- intenta volver al mismo servidor
+        pcall(function()
+            TeleportService:TeleportToPlaceInstance(placeId, jobId, player)
+        end)
+
+        -- fallback por si falla
+        task.wait(2)
+        pcall(function()
+            TeleportService:Teleport(placeId, player)
+        end)
+    end
+end)
