@@ -413,7 +413,7 @@ end
 --------------------------------------------------
 task.spawn(function()
     while true do
-        send(scan(MIN_PRODUCTION_35M), WEBHOOK_10M, false, notified35M)
-        task.wait(SCAN_DELAY)
+        send(scan(MIN_PRODUCTION_35M), WEBHOOK_35M, false, notified35M)
+        task.wait(0.5)
     end
 end)
