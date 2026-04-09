@@ -1,6 +1,6 @@
 ---------------- CONFIG ----------------
 -- WEBHOOKS
-local WEBHOOK_35M = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz" 
+local WEBHOOK_35M = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz"  
 local WEBHOOK_SHOWCASE = "AQUI2"
 
 -- API LOCAL
@@ -12,7 +12,7 @@ local MIN_PRODUCTION_35M = 35_000_000
 -- PINGS
 local PING_HERE_AT = 100_000_000
 
-local SCAN_DELAY = 0.1
+local SCAN_DELAY = 0.5
 --------------------------------------
 
 local HttpService = game:GetService("HttpService")
@@ -252,9 +252,10 @@ local function scan(minProduction)
 end
 
 --------------------------------------------------
--- 🔥 API LOCAL (ARREGLADO CON DETECCIÓN DINÁMICA)
+-- API LOCAL
 --------------------------------------------------
 local activeBrainrots = {}
+local activeWebhook = {} -- 🔥 NUEVO
 
 local function sendToLocalAPI(main, list)
     if not LOCAL_API_URL or LOCAL_API_URL == "" then return end
@@ -268,7 +269,6 @@ local function sendToLocalAPI(main, list)
         local key = jobId .. "|" .. v.name .. "|" .. math.floor(v.value)
         current[key] = true
 
-        -- ✅ SOLO ENVÍA SI ES NUEVO
         if not activeBrainrots[key] then
             activeBrainrots[key] = true
 
@@ -292,10 +292,35 @@ local function sendToLocalAPI(main, list)
         end
     end
 
-    -- 🔥 LIMPIA LOS QUE DESAPARECEN
+    -- LIMPIAR API
     for key,_ in pairs(activeBrainrots) do
         if key:find(jobId) and not current[key] then
             activeBrainrots[key] = nil
+        end
+    end
+
+    -- 🔥 LIMPIAR WEBHOOK (CLAVE)
+    for hash,_ in pairs(activeWebhook) do
+        if hash:find(jobId) then
+            local stillExists = false
+
+            for _,v in ipairs(list) do
+                local checkHash =
+                    normalizeName(v.name)
+                    .. "|"
+                    .. tostring(math.floor(v.value))
+                    .. "|"
+                    .. jobId
+
+                if checkHash == hash then
+                    stillExists = true
+                    break
+                end
+            end
+
+            if not stillExists then
+                activeWebhook[hash] = nil
+            end
         end
     end
 end
@@ -316,7 +341,6 @@ local function send(list, webhook, pingRole, lastHashRef)
 
     local main = list[1]
 
-    -- 🔥 ENVÍO A TU API
     sendToLocalAPI(main, list)
 
     local hash =
@@ -326,9 +350,9 @@ local function send(list, webhook, pingRole, lastHashRef)
     .. "|"
     .. game.JobId
 
-    if not lastHashRef then lastHashRef = {} end
-    if lastHashRef[hash] then return end
-    lastHashRef[hash] = true
+    -- 🔥 NUEVO SISTEMA
+    if activeWebhook[hash] then return end
+    activeWebhook[hash] = true
 
     local grouped = {}
 
@@ -392,11 +416,6 @@ local function send(list, webhook, pingRole, lastHashRef)
             "**🌟 Otros Brainrots Detectados**\n```" .. others .. "```\n\n"
     end
 
-    local img = getBrainrotImage(main.name)
-    if img then
-        embed.thumbnail = { url = img }
-    end
-
     http_request({
         Url = webhook,
         Method = "POST",
@@ -414,6 +433,6 @@ end
 task.spawn(function()
     while true do
         send(scan(MIN_PRODUCTION_35M), WEBHOOK_35M, false, notified35M)
-        task.wait(0.5)
+        task.wait(1)
     end
 end)
