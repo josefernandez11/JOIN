@@ -1,13 +1,13 @@
 ---------------- CONFIG ----------------
 -- WEBHOOKS
-local WEBHOOK_10M = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz" 
+local WEBHOOK_35M = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz" 
 local WEBHOOK_SHOWCASE = "AQUI2"
 
 -- API LOCAL
 local LOCAL_API_URL = "https://webhook-roblox.josefernandezxd4.workers.dev/"
 
 -- MINIMOS
-local MIN_PRODUCTION_10M = 10_000_000
+local MIN_PRODUCTION_35M = 35_000_000
 
 -- PINGS
 local PING_HERE_AT = 100_000_000
@@ -304,7 +304,7 @@ end
 -- WEBHOOK
 --------------------------------------------------
 
-local notified10M = {}
+local notified35M = {}
 local notifiedShowcase = {}
 
 local function send(list, webhook, pingRole, lastHashRef)
@@ -413,7 +413,7 @@ end
 --------------------------------------------------
 task.spawn(function()
     while true do
-        send(scan(MIN_PRODUCTION_10M), WEBHOOK_10M, false, notified10M)
+        send(scan(MIN_PRODUCTION_35M), WEBHOOK_10M, false, notified35M)
         task.wait(SCAN_DELAY)
     end
 end)
