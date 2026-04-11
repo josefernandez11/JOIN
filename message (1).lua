@@ -255,7 +255,8 @@ end
 -- API LOCAL
 --------------------------------------------------
 local activeBrainrots = {}
-local activeWebhook = {} -- 🔥 NUEVO
+local activeWebhook = {}
+local notifiedCache = {} -- 🔥 NUEVO
 
 local function sendToLocalAPI(main, list)
     if not LOCAL_API_URL or LOCAL_API_URL == "" then return end
@@ -292,35 +293,9 @@ local function sendToLocalAPI(main, list)
         end
     end
 
-    -- LIMPIAR API
     for key,_ in pairs(activeBrainrots) do
         if key:find(jobId) and not current[key] then
             activeBrainrots[key] = nil
-        end
-    end
-
-    -- 🔥 LIMPIAR WEBHOOK (CLAVE)
-    for hash,_ in pairs(activeWebhook) do
-        if hash:find(jobId) then
-            local stillExists = false
-
-            for _,v in ipairs(list) do
-                local checkHash =
-                    normalizeName(v.name)
-                    .. "|"
-                    .. tostring(math.floor(v.value))
-                    .. "|"
-                    .. jobId
-
-                if checkHash == hash then
-                    stillExists = true
-                    break
-                end
-            end
-
-            if not stillExists then
-                activeWebhook[hash] = nil
-            end
         end
     end
 end
